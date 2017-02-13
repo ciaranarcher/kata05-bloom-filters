@@ -6,12 +6,28 @@ import java.security.MessageDigest
 
 class BloomFilter(bitmapSize: Int) {
   val numMapper = new NumberMapper((Int.MinValue to Int.MaxValue - 1), (0 to bitmapSize - 1))
+  val bitMap = Array.fill(bitmapSize)(false)
 
-  def loadItems(items: Array[String]): Array[Array[Int]] = {
+  def loadItems(items: Array[String]): Array[Boolean] = {
     items
       .map(hash)
       .map(getIntsFromHash)
       .map(mapToRange)
+      .map(setInBitmap)
+
+    bitMap
+  }
+
+  def query(word: String): Option[Boolean] = {
+    val w = mapToRange(getIntsFromHash(hash(word)))
+    w.foreach { i =>
+      println(bitMap(i))
+      bitMap.lift(i) match {
+        case Some(true) => Some(true)
+        case _ => return None
+      }
+    }
+    Some(true)
   }
 
   private def asInt(slice: Array[Byte]) = {
@@ -38,6 +54,14 @@ class BloomFilter(bitmapSize: Int) {
   private def hash(str: String) = {
     println(s"hashing: $str")
     MessageDigest.getInstance("SHA-256").digest(str.getBytes(StandardCharsets.UTF_8))
+  }
+
+  private def setInBitmap(bits: Array[Int]) = {
+    println(bitMap.length)
+    bits.map { i =>
+      // println(s"setting ${i}")
+      bitMap.update(i, true)
+    }
   }
 }
 
