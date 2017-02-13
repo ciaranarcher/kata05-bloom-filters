@@ -5,7 +5,7 @@ import org.scalatest._
 class BloomFilterSpec extends FlatSpec with Matchers {
 
   it should "accept a set of words and return a set of 8 x 4 byte numbers (from a 32 byte SHA-256 hash) for each" in {
-    val filter = new BloomFilter
+    val filter = new BloomFilter(1024)
     val hashes = filter.loadItems(Array[String]("the", "quick", "brown", "fox"))
     hashes.foreach { h =>
       println("-->")

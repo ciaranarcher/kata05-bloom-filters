@@ -4,11 +4,14 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 
-class BloomFilter {
+class BloomFilter(bitmapSize: Int) {
+  val numMapper = new NumberMapper((Int.MinValue to Int.MaxValue - 1), (0 to bitmapSize - 1))
+
   def loadItems(items: Array[String]): Array[Array[Int]] = {
     items
       .map(hash)
       .map(getIntsFromHash)
+      .map(mapToRange)
   }
 
   private def asInt(slice: Array[Byte]) = {
@@ -26,7 +29,10 @@ class BloomFilter {
       asInt(hash.slice(24, 28)),
       asInt(hash.slice(28, 32))
     )
+  }
 
+  private def mapToRange(nums: Array[Int]) = {
+    nums.map(numMapper.map)
   }
 
   private def hash(str: String) = {

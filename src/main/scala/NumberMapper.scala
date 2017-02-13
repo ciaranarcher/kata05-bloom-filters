@@ -1,16 +1,18 @@
 package com.example.kata05bloomfilters
 
-import java.lang.IndexOutOfBoundsException
-
 class NumberMapper(input: Range, output: Range) {
   val inRange = input
   val outRange = output
-  val slope = 1.0 * (output.end - output.start) / (input.end - input.start)
 
-  def map(number: Int): Double = {
+  def map(number: Int): Int = {
     input.contains(number) match {
-      case true => Math.floor(outRange.start + slope * (number - inRange.start)).toInt
+      case true => mapNumber(number, inRange.start, inRange.end, outRange.start, outRange.end).toInt
       case _ => throw new IndexOutOfBoundsException(s"${number} is not in the input range ${input}")
     }
+  }
+
+  // TODO camelcase
+  private def mapNumber(x: Float, in_min: Float, in_max: Float , out_min: Float, out_max: Float) = {
+    Math.round((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
   }
 }
