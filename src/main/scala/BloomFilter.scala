@@ -18,16 +18,11 @@ class BloomFilter(bitmapSize: Int) {
     bitMap
   }
 
-  def query(word: String): Option[Boolean] = {
-    val w = mapToRange(getIntsFromHash(hash(word)))
-    w.foreach { i =>
-      println(bitMap(i))
-      bitMap.lift(i) match {
-        case Some(true) => Some(true)
-        case _ => return None
-      }
-    }
-    Some(true)
+  def query(word: String): Boolean = {
+    mapToRange(getIntsFromHash(hash(word)))
+      .view                           // Lazily find all items in the list
+      .map(item => bitMap.lift(item))
+      .forall(_ == Some(true))        // Return if all are found
   }
 
   private def asInt(slice: Array[Byte]) = {
@@ -52,16 +47,11 @@ class BloomFilter(bitmapSize: Int) {
   }
 
   private def hash(str: String) = {
-    println(s"hashing: $str")
     MessageDigest.getInstance("SHA-256").digest(str.getBytes(StandardCharsets.UTF_8))
   }
 
   private def setInBitmap(bits: Array[Int]) = {
-    println(bitMap.length)
-    bits.map { i =>
-      // println(s"setting ${i}")
-      bitMap.update(i, true)
-    }
+    bits.map(i => bitMap.update(i, true))
   }
 }
 
